@@ -18,7 +18,6 @@ const ALLOWED_RECIPIENTS = [
   'contato@andradesystems.com.br',
   'elias@andradesystems.com.br',
   'contato@apprepbrasil.com.br',
-  'contato@transparenciarst.com.br',
 ] as const;
 
 /**

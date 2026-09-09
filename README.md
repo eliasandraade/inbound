@@ -10,7 +10,6 @@ mensagem para uma caixa pessoal, usando o próprio alias que recebeu como `from`
 | `contato@andradesystems.com.br`    | `oeliasandraade@gmail.com`  |
 | `elias@andradesystems.com.br`      | `oeliasandraade@gmail.com`  |
 | `contato@apprepbrasil.com.br`      | `oeliasandraade@gmail.com`  |
-| `contato@transparenciarst.com.br`  | `oeliasandraade@gmail.com`  |
 
 A lista fica em `ALLOWED_RECIPIENTS`, no topo de `app/api/inbound/route.ts`.
 Para adicionar um endereço novo, inclua na lista **e** cumpra os passos 1 e 2
@@ -18,7 +17,7 @@ abaixo para o domínio dele.
 
 ## Como o `from` é escolhido
 
-A Resend só aceita enviar de domínio verificado, entao o `from` do
+A Resend só aceita enviar de domínio verificado, então o `from` do
 encaminhamento é o alias que recebeu a mensagem — nunca o remetente original.
 O código procura o alias em `to`, `cc` e `bcc` (nessa ordem) e usa o primeiro
 que estiver na lista. Se a mensagem chegou sem nenhum alias conhecido no
@@ -26,9 +25,21 @@ cabeçalho, cai no `FALLBACK_FROM` em vez de descartar o e-mail.
 
 ## Configuração na Resend
 
-1. **Verificar os domínios** em <https://resend.com/domains> — `andradesystems.com.br`,
-   `apprepbrasil.com.br` e `transparenciarst.com.br`. Cada um precisa de envio
-   (SPF/DKIM) **e** recebimento (registro MX) ativos.
+1. **Habilitar envio e recebimento** em <https://resend.com/domains> para
+   `andradesystems.com.br` e `apprepbrasil.com.br`. Envio (SPF/DKIM) não basta:
+   sem o recebimento a mensagem não chega na Resend e o evento nunca dispara.
+   O recebimento precisa deste MX no apex do domínio:
+
+   ```
+   MX  @  prioridade 10  inbound-smtp.sa-east-1.amazonaws.com
+   ```
+
+   Atenção: MX no apex captura **todo** o e-mail do domínio. Só adicione se o
+   domínio não tiver outro serviço de e-mail (Google Workspace, Outlook etc.).
+
+   O `--receiving` da CLI só existe no `domains create`, não no `update`, então
+   para domínio já criado o recebimento se habilita pelo painel.
+
 2. **Criar os endereços de recebimento** da tabela acima.
 3. **Criar a chave de API** em <https://resend.com/api-keys> com permissão de
    envio e colocar em `RESEND_API_KEY`.
